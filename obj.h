@@ -31,13 +31,30 @@ struct ObjFile {
     void AddFace(const std::string &name)
     { if(0) std::cout << "Face: " << name << std::endl; }
 
-    void AddVertex(const std::string &name)
+    void AddVertex(const std::string &line)
     {
-        char* end = (char*)name.c_str();
+        char* end = (char*)line.c_str();
         float x = strtof( end, &end );
         float y = strtof( end, &end );
         float z = strtof( end, &end );
         positions.push_back(triple(x,y,z));
+    }
+
+    void AddNormal(const std::string &line)
+    {
+        char* end = (char*)line.c_str();
+        float x = strtof( end, &end );
+        float y = strtof( end, &end );
+        float z = strtof( end, &end );
+        normals.push_back(triple(x,y,z));
+    }
+
+    void AddTexcoord(const std::string &line)
+    {
+        char* end = (char*)line.c_str();
+        float s = strtof( end, &end );
+        float t = strtof( end, &end );
+        coords.push_back(pair(s,t));
     }
 
 

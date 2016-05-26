@@ -2,9 +2,9 @@
 #include <iostream>
 
 #include "obj.h"
+#include "util.h"
 
 using std::cout;
-
 
 
 ObjFile::ObjFile(std::ifstream &fin)
@@ -21,16 +21,27 @@ ObjFile::ObjFile(std::ifstream &fin)
                 AddGroup(line.substr(2));
                 continue;
             case 'v':
-                AddVertex(line.substr(2));
+                switch(line.at(1)) {
+                    case ' ':
+                    case '\t':
+                        AddVertex(line.substr(2));
+                        break;
+                    case 'n':
+                        AddNormal(line.substr(3));
+                        break;
+                    case 't':
+                        AddTexcoord(line.substr(3));
+                        break;
+                    default:
+                        throw StackException("Unexpected 'V' line (" + line + ")");
+                }
                 continue;
             case 'f':
                 AddFace(line.substr(2));
                 continue;
             default:
-                cout << "WTF: " << line << std::endl;
+                throw StackException("Unexpected line (" + line + ")");
         }
-
-        printf("Base: '%c', == %s\n", line[0], line.c_str());
     }
 }
 

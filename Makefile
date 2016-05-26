@@ -8,6 +8,8 @@ OBJ=$(patsubst %.cpp,%.o,$(SRC))
 main.o: obj.h timer.h
 obj.o: obj.h
 
+$(OBJ): Makefile
+
 $(OBJ): %.o : %.cpp
 	clang++ $(CFLAGS) -ggdb  -c $< -o $@ --std=c++11
 
