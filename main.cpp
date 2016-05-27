@@ -12,7 +12,6 @@ using namespace std;
 int
 main(int argc, char *argv[])
 {
-    Timer timer("Application Runtime");
 
     const char *filename = argc > 1? argv[1] : "gt86.obja";
     ifstream fin(filename, ios::in);
@@ -21,7 +20,19 @@ main(int argc, char *argv[])
         return -1;
     }
 
-    auto obj = ObjFile(fin);
+    {  Timer timer("Objfile load time");
+       auto obj = ObjFile(fin);
+
+       cout << "Vertices : " << obj.positions.size() << std::endl;
+       cout << "Normals  : " << obj.normals.size() << std::endl;
+       cout << "TexCoords: " << obj.coords.size() << std::endl;
+       cout << endl;
+
+       for(auto &g: obj.groups) {
+           std::cout << "Group: " << g->name << std:: endl;
+           std::cout << "       Faces:" << g->faces.size() << std::endl;
+       }
+    }
 
     return 0;
 }

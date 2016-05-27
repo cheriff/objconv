@@ -4,11 +4,26 @@
 #include <vector>
 #include <tuple>
 
+typedef std::tuple<int, int, int> int3;
+
+struct Face {
+    Face(int3 v1, int3 v2, int3 v3): indices{v1,v2,v3}
+    {
+    }
+
+    int3 indices[3];
+};
+
 struct Group {
     Group(const std::string &new_name) : name{new_name}
-    {        }
+    {}
+
+    void AddFace(int3 v1, int3 v2, int3 v3) {
+        faces.push_back(Face(v1,v2,v3));
+    }
 
     const std::string name;
+    std::vector<Face> faces;
 };
 
 typedef std::tuple<float, float, float> triple;
@@ -28,34 +43,10 @@ struct ObjFile {
         groups.push_back(move(g));
     }
 
-    void AddFace(const std::string &name)
-    { if(0) std::cout << "Face: " << name << std::endl; }
-
-    void AddVertex(const std::string &line)
-    {
-        char* end = (char*)line.c_str();
-        float x = strtof( end, &end );
-        float y = strtof( end, &end );
-        float z = strtof( end, &end );
-        positions.push_back(triple(x,y,z));
-    }
-
-    void AddNormal(const std::string &line)
-    {
-        char* end = (char*)line.c_str();
-        float x = strtof( end, &end );
-        float y = strtof( end, &end );
-        float z = strtof( end, &end );
-        normals.push_back(triple(x,y,z));
-    }
-
-    void AddTexcoord(const std::string &line)
-    {
-        char* end = (char*)line.c_str();
-        float s = strtof( end, &end );
-        float t = strtof( end, &end );
-        coords.push_back(pair(s,t));
-    }
+    void AddFace(const std::string &line);
+    void AddVertex(const std::string &line);
+    void AddNormal(const std::string &line);
+    void AddTexcoord(const std::string &line);
 
 
     public:

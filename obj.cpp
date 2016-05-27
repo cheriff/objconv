@@ -45,3 +45,73 @@ ObjFile::ObjFile(std::ifstream &fin)
     }
 }
 
+
+static inline bool
+is_num(char c) { return isdigit(c) || (c=='-'); }
+
+static std::tuple<int3, char*> read_group(char *str) {
+    int v0, n0, c0;
+    v0=n0=c0 = 0;
+
+    v0 = strtol(str, &str, 10);
+    if ((*str++) == '/') {
+        if (is_num(*str)) {
+            c0 = strtol(str, &str, 10);
+        }
+
+        if ((*str++) == '/') {
+            if (is_num(*str)) {
+                n0 = strtol(str, &str, 10);
+            }
+        }
+    }
+    return std::tuple<int3, char*>(int3(v0, n0, c0), str);
+}
+
+void ObjFile::AddFace(const std::string &line)
+{
+
+    char* str = (char*)line.c_str();
+
+    int3 v1, v2, v3;
+    std::tie(v1, str) = read_group(str);
+    std::tie(v2, str) = read_group(str);
+    std::tie(v3, str) = read_group(str);
+
+    while (std::get<0>(v3) != 0) {
+        groups.back()->AddFace(v1, v2, v3);
+
+        v2 = v3;
+        std::tie(v3, str) = read_group(str);
+    }
+
+
+
+}
+
+void ObjFile::AddVertex(const std::string &line)
+{
+    char* end = (char*)line.c_str();
+    float x = strtof( end, &end );
+    float y = strtof( end, &end );
+    float z = strtof( end, &end );
+    positions.push_back(triple(x,y,z));
+}
+
+void ObjFile::AddNormal(const std::string &line)
+{
+    char* end = (char*)line.c_str();
+    float x = strtof( end, &end );
+    float y = strtof( end, &end );
+    float z = strtof( end, &end );
+    normals.push_back(triple(x,y,z));
+}
+
+void ObjFile::AddTexcoord(const std::string &line)
+{
+    char* end = (char*)line.c_str();
+    float s = strtof( end, &end );
+    float t = strtof( end, &end );
+    coords.push_back(pair(s,t));
+}
+
