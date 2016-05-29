@@ -1,37 +1,9 @@
-#ifndef __OBJ_H__
-#define __OBJ_H__
+#pragma once
 
 #include <vector>
-#include <tuple>
 
-typedef std::tuple<int, int, int> int3;
-
-struct Face {
-    Face(int3 v1, int3 v2, int3 v3): indices{v1,v2,v3}
-    {
-    }
-
-    int3 indices[3];
-};
-
-struct Group {
-    Group(const std::string &new_name) : name{new_name}
-    {}
-
-    void AddFace(int3 v1, int3 v2, int3 v3) {
-        faces.push_back(Face(v1,v2,v3));
-    }
-
-    const std::string name;
-    std::vector<Face> faces;
-};
-
-typedef std::tuple<float, float, float> triple;
-typedef std::tuple<float, float> pair;
-
-std::ostream &operator<<(std::ostream &os, triple const &m);
-std::ostream &operator<<(std::ostream &os, pair const &m);
-
+#include "util.h"
+#include "Group.h"  
 
 struct ObjFile {
     ObjFile(std::ifstream &fin);
@@ -39,8 +11,13 @@ struct ObjFile {
     private:
     void AddGroup(const std::string &name)
     {
-        std::unique_ptr<Group> g(new Group(name));
-        groups.push_back(move(g));
+        groups.push_back(Group(name));
+    }
+
+    void SetMaterial(const std::string &line)
+    {
+        // TODO: Be more useful with Material
+        //std::cout << "Material: '" << line << "'" << std::endl;
     }
 
     void AddFace(const std::string &line);
@@ -50,10 +27,11 @@ struct ObjFile {
 
 
     public:
-    std::vector<std::unique_ptr<Group>> groups;
+    std::vector<Group> groups;
     std::vector<triple> positions;
     std::vector<triple> normals;
     std::vector<pair> coords;
+
+    std::vector<int> indices;
 };
 
-#endif // __OBJ_H__

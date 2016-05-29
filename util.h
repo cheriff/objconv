@@ -1,7 +1,11 @@
+#pragma once
 
 #define BT_BUF_SIZE 100
 #include <execinfo.h>
 #include <stdlib.h>
+
+#include <iostream>
+
 
 struct StackException {
     StackException(const std::string &errstr) {
@@ -17,3 +21,12 @@ struct StackException {
     void *buffer[BT_BUF_SIZE];
     char **strings;
 };
+
+#include <tuple>
+typedef std::tuple<int, int, int> int3;
+typedef std::tuple<float, float, float> triple;
+typedef std::tuple<float, float> pair;
+
+std::ostream &operator<<(std::ostream &os, triple const &m);
+std::ostream &operator<<(std::ostream &os, pair const &m);
+

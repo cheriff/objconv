@@ -4,7 +4,10 @@
 #include "obj.h"
 #include "util.h"
 
+#include "VertexCache.h"
+
 using std::cout;
+using std::endl;
 
 
 ObjFile::ObjFile(std::ifstream &fin)
@@ -39,8 +42,24 @@ ObjFile::ObjFile(std::ifstream &fin)
             case 'f':
                 AddFace(line.substr(2));
                 continue;
+            case 'u':
+                if (line.find("usemtl") == 0)
+                    SetMaterial(line.substr(7));
+                else
+                    throw StackException("Unexpected 'u' line (" + line + ")");
+                break;
             default:
                 throw StackException("Unexpected line (" + line + ")");
+        }
+    }
+
+    VertexCache vc;
+    for (auto &g :groups) {
+        g.base_idx = vc.count();
+        cout << "Group: " << g.name << " has :" << g.base_idx <<endl;
+        for (auto &f : g.faces) {
+            vc.feed(f);
+            g.count++;
         }
     }
 }
@@ -79,14 +98,11 @@ void ObjFile::AddFace(const std::string &line)
     std::tie(v3, str) = read_group(str);
 
     while (std::get<0>(v3) != 0) {
-        groups.back()->AddFace(v1, v2, v3);
+        groups.back().AddFace(v1, v2, v3);
 
         v2 = v3;
         std::tie(v3, str) = read_group(str);
     }
-
-
-
 }
 
 void ObjFile::AddVertex(const std::string &line)

@@ -29,8 +29,10 @@ main(int argc, char *argv[])
        cout << endl;
 
        for(auto &g: obj.groups) {
-           std::cout << "Group: " << g->name << std:: endl;
-           std::cout << "       Faces:" << g->faces.size() << std::endl;
+           std::cout << "Group: " << g.name << std:: endl;
+           std::cout << "       Faces:" << g.faces.size() << std::endl;
+           std::cout << "       idx_Base :  " << g.base_idx <<std::endl;
+           std::cout << "       idx_Count:  " << g.count <<std::endl;
        }
     }
 
