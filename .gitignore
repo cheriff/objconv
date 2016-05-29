@@ -1,4 +1,5 @@
 *.sw?
+Makefile.deps
 *.o
 objconv
 *.obja

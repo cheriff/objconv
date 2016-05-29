@@ -5,13 +5,14 @@ CFLAGS=-Wall -Werror -O2
 SRC=$(wildcard *.cpp)
 OBJ=$(patsubst %.cpp,%.o,$(SRC))
 
-main.o: obj.h timer.h
-obj.o: obj.h
+-include Makefile.deps
+Makefile.deps: $(SRC)
+	$(CC) $(CFLAGS) -MM $(SRC) > Makefile.deps
 
 $(OBJ): Makefile
 
 $(OBJ): %.o : %.cpp
-	clang++ $(CFLAGS) -ggdb  -c $< -o $@ --std=c++11
+	clang++ $(CFLAGS) -ggdb  --std=c++11     -c $< -o $@
 
 objconv: $(OBJ)
 	clang++ $(CFLAGS) -ggdb  $^ -o $@
@@ -21,3 +22,4 @@ run: objconv
 
 clean:
 	rm -f objconf $(OBJ)
+	rm -f Makefile.deps
