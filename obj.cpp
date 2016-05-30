@@ -56,10 +56,11 @@ ObjFile::ObjFile(std::ifstream &fin)
     VertexCache vc;
     for (auto &g :groups) {
         g.base_idx = vc.count();
-        cout << "Group: " << g.name << " has :" << g.base_idx <<endl;
         for (auto &f : g.faces) {
-            vc.feed(f);
-            g.count++;
+            vc.feed(f.vertices[0]);
+            vc.feed(f.vertices[1]);
+            vc.feed(f.vertices[2]);
+            g.count+=3;
         }
     }
 }
