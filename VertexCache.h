@@ -11,8 +11,8 @@ struct VertexCache {
     int count() { return indices.size(); }
     void print();
 
-    private:
     std::vector<int3> buffer;
     std::vector<int> indices;
+    private:
     std::map<int3, int> map;
 };

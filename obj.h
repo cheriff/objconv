@@ -3,10 +3,13 @@
 #include <vector>
 
 #include "util.h"
-#include "Group.h"  
+#include "Group.h"
+#include "VertexCache.h"
 
 struct ObjFile {
-    ObjFile(std::ifstream &fin);
+    ObjFile(std::ifstream &fin, const std::string &name = "NoName");
+    void ToASCII(std::ofstream &fout);
+    void ToBin(std::ofstream &fout);
 
     private:
     void AddGroup(const std::string &name)
@@ -25,6 +28,8 @@ struct ObjFile {
     void AddNormal(const std::string &line);
     void AddTexcoord(const std::string &line);
 
+    std::string name;
+
 
     public:
     std::vector<Group> groups;
@@ -33,5 +38,6 @@ struct ObjFile {
     std::vector<pair> coords;
 
     std::vector<int> indices;
+    std::unique_ptr<VertexCache> vc;
 };
 
