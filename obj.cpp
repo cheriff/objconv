@@ -132,7 +132,7 @@ void ObjFile::AddTexcoord(const std::string &line)
     coords.push_back(pair(s,t));
 }
 
-void ObjFile::ToASCII(std::ofstream &fout)
+void ObjFile::toASCII(std::ofstream &fout)
 {
     int i = 0;
     for (auto p: vc->buffer) {
@@ -192,7 +192,7 @@ do_write(std::ofstream &fp, triple &t)
 #define GL_DOUBLE                         0x140A
 
 
-void ObjFile::ToBin(std::ofstream &fout)
+void ObjFile::toBin(std::ofstream &fout)
 {
     const uint32_t magic = 0x0B1EC701;
     const uint16_t major = 0x0001;
