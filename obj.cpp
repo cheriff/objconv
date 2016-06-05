@@ -199,7 +199,10 @@ void ObjFile::ToBin(std::ofstream &fout)
     const uint16_t minor = 0x0001;
     const uint16_t index_type = GL_UNSIGNED_INT;
     const uint16_t index_count = vc->indices.size();
-    const uint32_t buffsize = vc->buffer.size() * 3 * sizeof(float);
+
+    const int floats_per_vert = 8; // pos(x,y,z) + norm(x,y,z) + tex(s,t) = 3 + 3 + 2 = 8
+    const uint32_t buffsize = vc->buffer.size() * floats_per_vert * sizeof(float);
+
 
     const uint32_t num_attrs = 2;
     const uint32_t num_groups = groups.size();
