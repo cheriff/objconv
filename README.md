@@ -13,7 +13,7 @@ General goals for the format:
 Intent is that updates to the format that don't break existing readers (currently just mingl) bump minor version, breaking changes increment major.
 Ideally readers just check the major before proceeding.
 
-### Version 1.1
+### Version 1.1 - STILL IN PROGRESS AND PROBABLY BROKEN
 Whoops, accidentally used 1.1 as first ever version. I guess that's where we'll start.
 
 Just making sure geometry can be loaded and displayed properly.
