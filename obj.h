@@ -8,8 +8,8 @@
 
 struct ObjFile {
     ObjFile(std::ifstream &fin, const std::string &name = "NoName");
-    void ToASCII(std::ofstream &fout);
-    void ToBin(std::ofstream &fout);
+    void toASCII(std::ofstream &fout);
+    void toBin(std::ofstream &fout);
 
     private:
     void AddGroup(const std::string &name)

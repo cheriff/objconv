@@ -18,7 +18,7 @@ objconv: $(OBJ)
 	clang++ $(CFLAGS) -ggdb  $^ -o $@
 
 run: objconv
-	./objconv cube.obja
+	./objconv cube.obja cube.objb
 
 clean:
 	rm -f objconf $(OBJ)
