@@ -1,6 +1,6 @@
 all: objconv
 
-CFLAGS=-Wall -Werror -O2
+CFLAGS=-Wall -Werror -O0 -ggdb
 
 SRC=$(wildcard *.cpp)
 OBJ=$(patsubst %.cpp,%.o,$(SRC))

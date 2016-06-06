@@ -1,7 +1,21 @@
 #include "VertexCache.h"
 
-void
-VertexCache::feed(int3 &f) {
+int
+VertexCache::feed(int i)
+{
+    indices.push_back(i);
+    return i;
+}
+
+int
+VertexCache::feed(Vertex &v)
+{
+    int idx = buffer.size();
+    indices.push_back(idx);
+    buffer.push_back(v);
+    return idx;
+
+#if 0
     decltype(map)::iterator it;
 
     it = map.find(f);
@@ -16,6 +30,7 @@ VertexCache::feed(int3 &f) {
     }
 
     indices.push_back(idx);
+#endif
 }
 
 #include <algorithm>
