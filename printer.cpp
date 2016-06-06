@@ -4,15 +4,23 @@
 #include "util.h"
 
 
-// triple
-std::ostream &operator<<(std::ostream &os, triple const &m) { 
+// float3
+std::ostream &operator<<(std::ostream &os, float3 const &m) { 
     return os << std::fixed<<std::setw(7)
-        << "V3(" << std::get<0>(m)
-        << ", "  << std::get<1>(m)
-        << ", "  << std::get<2>(m) << ")";
+        << "V3(" << m.x
+        << ", "  << m.y
+        << ", "  << m.z << ")";
 }
 
-// double
-std::ostream &operator<<(std::ostream &os, pair const &m) { 
-    return os << "V2("<<std::get<0>(m)<<", "<<std::get<1>(m)<<")";
+// int3
+std::ostream &operator<<(std::ostream &os, int3 const &m) { 
+    return os
+        << "I3(" << m.a
+        << ", "  << m.b
+        << ", "  << m.c << ")";
+}
+
+// float2
+std::ostream &operator<<(std::ostream &os, float2 const &m) { 
+    return os << "V2("<<m.s<<", "<<m.t<<")";
 }

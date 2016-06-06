@@ -1,6 +1,8 @@
 #include <fstream>
 #include <iostream>
 
+#include <assert.h>
+
 #include "obj.h"
 #include "util.h"
 
@@ -12,7 +14,6 @@ using std::endl;
 ObjFile::ObjFile(std::ifstream &fin, const std::string &name)
 {
     this->name = name;
-
 
 #define SKIP_WS(_f)  _f>>std::ws
     for (std::string line; SKIP_WS(fin), getline(fin, line); ) {
@@ -52,24 +53,13 @@ ObjFile::ObjFile(std::ifstream &fin, const std::string &name)
                 throw StackException("Unexpected line (" + line + ")");
         }
     }
-
-    vc = std::unique_ptr<VertexCache>(new VertexCache); 
-    for (auto &g :groups) {
-        g.base_idx = vc->count();
-        for (auto &f : g.faces) {
-            vc->feed(f.vertices[0]);
-            vc->feed(f.vertices[1]);
-            vc->feed(f.vertices[2]);
-            g.count+=3;
-        }
-    }
 }
 
 
 static inline bool
 is_num(char c) { return isdigit(c) || (c=='-'); }
 
-static std::tuple<int3, char*> read_group(char *str) {
+static std::tuple<int, int, int, char*> read_group(char *str) {
     int v0, n0, c0;
     v0=n0=c0 = 0;
 
@@ -85,25 +75,71 @@ static std::tuple<int3, char*> read_group(char *str) {
             }
         }
     }
-    return std::tuple<int3, char*>(int3(v0, n0, c0), str);
+    return std::tuple<int, int, int, char*>(v0, c0, n0, str);
+}
+
+int
+ObjFile::PushVertex(int pos_idx, int tc_idx, int norm_idx)
+{
+    printf("Vertex: %d %d %d\n", pos_idx, tc_idx, norm_idx);
+    assert(pos_idx != 0);
+
+    if (pos_idx < 0)
+        pos_idx = positions.size() + pos_idx;
+    else
+        pos_idx -= 1;
+
+    Vertex v(positions.at(pos_idx));
+
+    cout << "POS  : " << positions.at(pos_idx) << std::endl;
+
+    if (tc_idx != 0) {
+        if (tc_idx < 0)
+            tc_idx = coords.size() + tc_idx;
+        else
+            tc_idx -= 1;
+
+        v.SetTex(coords.at(tc_idx));
+        cout << "TEX  : " << coords.at(tc_idx) << std::endl;
+    }
+
+    if (norm_idx != 0) {
+        if (norm_idx < 0)
+            norm_idx = normals.size() + norm_idx;
+        else
+            norm_idx -= 1;
+
+        v.SetNormal(normals.at(norm_idx));
+        cout << "NORM : " << normals.at(norm_idx) << std::endl;
+    }
+    cout << std::endl;
+
+    return vc.feed(v);
 }
 
 void ObjFile::AddFace(const std::string &line)
 {
-
     char* str = (char*)line.c_str();
 
-    int3 v1, v2, v3;
-    std::tie(v1, str) = read_group(str);
-    std::tie(v2, str) = read_group(str);
-    std::tie(v3, str) = read_group(str);
+    int pos, tc, norm;
 
-    while (std::get<0>(v3) != 0) {
-        groups.back().AddFace(v1, v2, v3);
+    std::tie(pos, tc, norm, str) = read_group(str);
+    PushVertex(pos, tc, norm);
 
-        v2 = v3;
-        std::tie(v3, str) = read_group(str);
-    }
+    std::tie(pos, tc, norm, str) = read_group(str);
+    PushVertex(pos, tc, norm);
+
+    std::tie(pos, tc, norm, str) = read_group(str);
+    PushVertex(pos, tc, norm);
+
+
+    do {
+        std::tie(pos, tc, norm, str) = read_group(str);
+        if (pos == 0) break;
+
+        // todo: trianglulate faces with more points
+        printf("TODO: BIGGER FACES\n");
+    } while (pos != 0);
 }
 
 void ObjFile::AddVertex(const std::string &line)
@@ -112,7 +148,7 @@ void ObjFile::AddVertex(const std::string &line)
     float x = strtof( end, &end );
     float y = strtof( end, &end );
     float z = strtof( end, &end );
-    positions.push_back(triple(x,y,z));
+    positions.push_back(float3(x,y,z));
 }
 
 void ObjFile::AddNormal(const std::string &line)
@@ -121,7 +157,7 @@ void ObjFile::AddNormal(const std::string &line)
     float x = strtof( end, &end );
     float y = strtof( end, &end );
     float z = strtof( end, &end );
-    normals.push_back(triple(x,y,z));
+    normals.push_back(float3(x,y,z));
 }
 
 void ObjFile::AddTexcoord(const std::string &line)
@@ -129,27 +165,24 @@ void ObjFile::AddTexcoord(const std::string &line)
     char* end = (char*)line.c_str();
     float s = strtof( end, &end );
     float t = strtof( end, &end );
-    coords.push_back(pair(s,t));
+    coords.push_back(float2(s,t));
 }
 
 void ObjFile::toASCII(std::ofstream &fout)
 {
     int i = 0;
-    for (auto p: vc->buffer) {
+    for (auto p: vc.buffer) {
         fout << "Vertex: "<< ++i << std::endl;
-        int p_idx = std::get<0>(p)-1;
-        int t_idx = std::get<1>(p)-1;
-        int n_idx = std::get<2>(p)-1;
-        fout << "  p" << p_idx<<": "<< positions[p_idx] << std::endl;
-        fout << "  t" << t_idx<<": "<< positions[t_idx] << std::endl;
-        fout << "  n" << n_idx<<": "<< positions[n_idx] << std::endl;
+        fout << "  p: "<< p.pos << std::endl;
+        fout << "  t: "<< p.tc << std::endl;
+        fout << "  n: "<< p.normal << std::endl;
     };
 
 
     fout << std::endl;
     fout << "Indices:" << std::endl;
     i=0;
-    for (auto x: vc->indices) {
+    for (auto x: vc.indices) {
         i++;
         fout << "  V" << x;
         if (i & ((i%3)==0)) fout<<std::endl;
@@ -174,11 +207,11 @@ do_write(std::ofstream &fp, T val)
 }
 
 static inline void
-do_write(std::ofstream &fp, triple &t)
+do_write(std::ofstream &fp, float3 &t)
 {
-    do_write<float>(fp, std::get<0>(t));
-    do_write<float>(fp, std::get<1>(t));
-    do_write<float>(fp, std::get<2>(t));
+    do_write<float>(fp, t.x);
+    do_write<float>(fp, t.y);
+    do_write<float>(fp, t.z);
 }
 
 /* DataType */
@@ -198,10 +231,10 @@ void ObjFile::toBin(std::ofstream &fout)
     const uint16_t major = 0x0001;
     const uint16_t minor = 0x0001;
     const uint16_t index_type = GL_UNSIGNED_INT;
-    const uint16_t index_count = vc->indices.size();
+    const uint16_t index_count = vc.indices.size();
 
     const int floats_per_vert = 8; // pos(x,y,z) + norm(x,y,z) + tex(s,t) = 3 + 3 + 2 = 8
-    const uint32_t buffsize = vc->buffer.size() * floats_per_vert * sizeof(float);
+    const uint32_t buffsize = vc.buffer.size() * floats_per_vert * sizeof(float);
 
 
     const uint32_t num_attrs = 2;
@@ -242,7 +275,7 @@ void ObjFile::toBin(std::ofstream &fout)
         do_write<uint16_t>(fout, g.count);
     }
 
-    for (auto i: vc->indices) {
+    for (auto i: vc.indices) {
         if (index_type==GL_UNSIGNED_INT)
             do_write<uint32_t>(fout, i);
         else if (index_type==GL_UNSIGNED_SHORT)
@@ -251,14 +284,10 @@ void ObjFile::toBin(std::ofstream &fout)
             do_write<uint8_t>(fout, i);
     }
 
-    for (auto v: vc->buffer) {
-        const unsigned int p_idx = std::get<0>(v)-1;
-        const unsigned int t_idx = std::get<1>(v)-1;
-        const unsigned int n_idx = std::get<2>(v)-1;
-        do_write(fout, positions[p_idx]);
-        do_write(fout, normals[n_idx]);
-        do_write(fout, coords[t_idx]);
-
+    for (auto v: vc.buffer) {
+        do_write(fout, v.pos);
+        do_write(fout, v.normal);
+        // do_write(fout, v.tc);
     }
 }
 

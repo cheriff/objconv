@@ -23,6 +23,8 @@ struct ObjFile {
         //std::cout << "Material: '" << line << "'" << std::endl;
     }
 
+    int PushVertex(int pos_idx, int tc_idx, int norm_idx);
+
     void AddFace(const std::string &line);
     void AddVertex(const std::string &line);
     void AddNormal(const std::string &line);
@@ -33,11 +35,11 @@ struct ObjFile {
 
     public:
     std::vector<Group> groups;
-    std::vector<triple> positions;
-    std::vector<triple> normals;
-    std::vector<pair> coords;
+    std::vector<float3> positions;
+    std::vector<float3> normals;
+    std::vector<float2> coords;
 
     std::vector<int> indices;
-    std::unique_ptr<VertexCache> vc;
+    VertexCache vc;
 };
 
