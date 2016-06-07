@@ -113,7 +113,8 @@ ObjFile::PushVertex(int pos_idx, int tc_idx, int norm_idx)
         cout << "NORM : " << normals.at(norm_idx) << std::endl;
     }
     cout << std::endl;
-
+    
+    groups.back().count++;
     return vc.feed(v);
 }
 
@@ -122,15 +123,21 @@ void ObjFile::AddFace(const std::string &line)
     char* str = (char*)line.c_str();
 
     int pos, tc, norm;
+    int first, last;
 
     std::tie(pos, tc, norm, str) = read_group(str);
-    PushVertex(pos, tc, norm);
+    first = PushVertex(pos, tc, norm);
 
     std::tie(pos, tc, norm, str) = read_group(str);
-    PushVertex(pos, tc, norm);
+    last = PushVertex(pos, tc, norm);
 
     std::tie(pos, tc, norm, str) = read_group(str);
-    PushVertex(pos, tc, norm);
+    int current = PushVertex(pos, tc, norm);
+
+    (void)first;
+    (void)last;
+    (void)current;
+
 
 
     do {
@@ -233,7 +240,8 @@ void ObjFile::toBin(std::ofstream &fout)
     const uint16_t index_type = GL_UNSIGNED_INT;
     const uint16_t index_count = vc.indices.size();
 
-    const int floats_per_vert = 8; // pos(x,y,z) + norm(x,y,z) + tex(s,t) = 3 + 3 + 2 = 8
+//    const int floats_per_vert = 8; // pos(x,y,z) + norm(x,y,z) + tex(s,t) = 3 + 3 + 2 = 8
+    const int floats_per_vert = 6; // pos(x,y,z) + norm(x,y,z) = 3 + 3 = 6
     const uint32_t buffsize = vc.buffer.size() * floats_per_vert * sizeof(float);
 
 
@@ -251,7 +259,7 @@ void ObjFile::toBin(std::ofstream &fout)
     do_write<uint32_t>(fout, num_attrs);
     do_write<uint32_t>(fout, num_groups);
 
-    const uint32_t float1_size = 1 * sizeof(float);
+    //const uint32_t float1_size = 1 * sizeof(float);
     const uint32_t float3_size = 3 * sizeof(float);
 
     // Attr1: Position
@@ -264,7 +272,7 @@ void ObjFile::toBin(std::ofstream &fout)
     // Attr2: Normal
     do_write(fout, "colour", 16);
     do_write<uint32_t>(fout, float3_size); // stride
-    do_write<uint32_t>(fout, float1_size); // offset
+    do_write<uint32_t>(fout, float3_size); // offset
     do_write<uint32_t>(fout, GL_FLOAT); // elem_type
     do_write<uint32_t>(fout, 3); // elem_count
 
@@ -285,6 +293,8 @@ void ObjFile::toBin(std::ofstream &fout)
     }
 
     for (auto v: vc.buffer) {
+        cout << "POS " << v.pos << endl;
+        cout << "COl " << v.normal << endl;
         do_write(fout, v.pos);
         do_write(fout, v.normal);
         // do_write(fout, v.tc);
