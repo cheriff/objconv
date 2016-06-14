@@ -264,14 +264,14 @@ void ObjFile::toBin(std::ofstream &fout)
 
     // Attr1: Position
     do_write(fout, "position", 16);
-    do_write<uint32_t>(fout, float3_size); // stride
+    do_write<uint32_t>(fout, 2*float3_size); // stride
     do_write<uint32_t>(fout, 0); // offset
     do_write<uint32_t>(fout, GL_FLOAT); // elem_type
     do_write<uint32_t>(fout, 3); // elem_count
 
     // Attr2: Normal
     do_write(fout, "colour", 16);
-    do_write<uint32_t>(fout, float3_size); // stride
+    do_write<uint32_t>(fout, 2*float3_size); // stride
     do_write<uint32_t>(fout, float3_size); // offset
     do_write<uint32_t>(fout, GL_FLOAT); // elem_type
     do_write<uint32_t>(fout, 3); // elem_count
