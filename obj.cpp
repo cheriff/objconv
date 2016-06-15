@@ -221,24 +221,13 @@ do_write(std::ofstream &fp, float3 &t)
     do_write<float>(fp, t.z);
 }
 
-/* DataType */
-#define GL_BYTE                           0x1400
-#define GL_UNSIGNED_BYTE                  0x1401
-#define GL_SHORT                          0x1402
-#define GL_UNSIGNED_SHORT                 0x1403
-#define GL_INT                            0x1404
-#define GL_UNSIGNED_INT                   0x1405
-#define GL_FLOAT                          0x1406
-#define GL_DOUBLE                         0x140A
-
-
 void ObjFile::toBin(std::ofstream &fout)
 {
     const uint32_t magic = 0x0B1EC701;
     const uint16_t major = 0x0001;
     const uint16_t minor = 0x0001;
-    const uint16_t index_type = GL_UNSIGNED_INT;
-    const uint16_t index_count = vc.indices.size();
+    const uint16_t index_type = vc.index_type();
+    const uint16_t index_count = vc.index_count();
 
 //    const int floats_per_vert = 8; // pos(x,y,z) + norm(x,y,z) + tex(s,t) = 3 + 3 + 2 = 8
     const int floats_per_vert = 6; // pos(x,y,z) + norm(x,y,z) = 3 + 3 = 6
