@@ -178,7 +178,7 @@ void ObjFile::AddTexcoord(const std::string &line)
 void ObjFile::toASCII(std::ofstream &fout)
 {
     int i = 0;
-    for (auto p: vc.buffer) {
+    for (auto p: vc.vertices) {
         fout << "Vertex: "<< ++i << std::endl;
         fout << "  p: "<< p.pos << std::endl;
         fout << "  t: "<< p.tc << std::endl;
@@ -231,7 +231,7 @@ void ObjFile::toBin(std::ofstream &fout)
 
 //    const int floats_per_vert = 8; // pos(x,y,z) + norm(x,y,z) + tex(s,t) = 3 + 3 + 2 = 8
     const int floats_per_vert = 6; // pos(x,y,z) + norm(x,y,z) = 3 + 3 = 6
-    const uint32_t buffsize = vc.buffer.size() * floats_per_vert * sizeof(float);
+    const uint32_t buffsize = vc.vertices.size() * floats_per_vert * sizeof(float);
 
 
     const uint32_t num_attrs = 2;
@@ -281,7 +281,7 @@ void ObjFile::toBin(std::ofstream &fout)
             do_write<uint8_t>(fout, i);
     }
 
-    for (auto v: vc.buffer) {
+    for (auto v: vc.vertices) {
         cout << "POS " << v.pos << endl;
         cout << "COl " << v.normal << endl;
         do_write(fout, v.pos);
