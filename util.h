@@ -28,6 +28,13 @@ struct float3 {
     float3() : x{0}, y{0}, z{0} {}
     float3(float x, float y, float z) : x{x}, y{y}, z{z} {}
     float x, y, z;
+
+    bool operator==(const float3& other) {
+        return (x==other.x) && (y==other.y) && (z==other.z);
+    }
+    bool operator!=(const float3& other) {
+        return !(*this == other);
+    }
 };
 
 struct int3 {
@@ -39,6 +46,13 @@ struct float2 {
     float2() : s{0}, t{0} {}
     float2(float s, float t) : s{s}, t{t} {}
     float s, t;
+
+    bool operator==(const float2& other) {
+        return (s==other.s) && (t==other.t);
+    }
+    bool operator!=(const float2& other) {
+        return !(*this == other);
+    }
 };
 std::ostream &operator<<(std::ostream &os, int3 const &m);
 std::ostream &operator<<(std::ostream &os, float3 const &m);
