@@ -10,20 +10,24 @@ VertexCache::feed(int i)
 int
 VertexCache::feed(Vertex &new_vertex)
 {
-    int idx = 0;
+    auto end = vertices.end();
+    auto begin = vertices.begin();
 
     /* Naive search. TODO: do lookup better than O(n^2) */
-    for (auto v: vertices) {
-        if (v ==  new_vertex) {
-            indices.push_back(idx);
-            return idx;
-        }
-        idx++;
-    }
+    auto it = std::find(begin, end, new_vertex);
 
-    indices.push_back(idx);
-    vertices.push_back(new_vertex);
-    return idx;
+    if (it == end) {
+        // Not found: add vertex and associated index
+        int idx = vertices.size();
+        indices.push_back(idx);
+        vertices.push_back(new_vertex);
+        return idx;
+    } else {
+        // Found: just reuse that vertex again
+        int idx = it - begin;
+        indices.push_back(idx);
+        return idx;
+    }
 }
 
 void
