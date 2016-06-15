@@ -13,8 +13,10 @@ struct VertexCache {
     int feed(int i);
     void print();
 
+    // return the smallest type which can index
+    // into the vertex array, and reach all elements
     int index_type() {
-        auto sz = buffer.size();
+        auto sz = vertices.size();
         if (sz < 256) return GL_UNSIGNED_BYTE;
         if (sz < 65536) return GL_UNSIGNED_SHORT;
         return GL_UNSIGNED_INT;
@@ -23,7 +25,7 @@ struct VertexCache {
         return indices.size();
     }
 
-    std::vector<Vertex> buffer;
+    std::vector<Vertex> vertices;
     std::vector<int> indices;
     private:
     std::map<Vertex, int> map;
