@@ -37,7 +37,8 @@ VertexCache::feed(Vertex &v)
 void
 VertexCache::print()
 {
-    std::cout << "Indices: " << count() << std::endl;
+    std::cout << "Indicx Count: " << index_count() << std::endl;
+    std::cout << "Index Type: " << gl_typeName(index_type()) << std::endl;
     std::cout << "Unique points: " << buffer.size() << std::endl;
 
     auto largest = std::max_element(indices.begin(), indices.end());
