@@ -13,25 +13,14 @@ General goals for the format:
 Intent is that updates to the format that don't break existing readers (currently just mingl) bump minor version, breaking changes increment major.
 Ideally readers just check the major before proceeding.
 
-### Version 1.1 - STILL IN PROGRESS AND PROBABLY BROKEN
-Whoops, accidentally used 1.1 as first ever version. I guess that's where we'll start.
+### Version 2.0
+Changed header layout, so incremented major number.
 
-Just making sure geometry can be loaded and displayed properly.
+Index-type and index-count are both uint32\_t values now. Previously they were
+16 bits, but it doesn't take much for a model to wrap ~65K indices. Also, since
+type holds the OpenGL enum constants, there is no gurantee they will fit in an
+unsigned short.
 
-File layout is:
- * Header
- * Attribute chunks: describes layout/stride/type of each data 'channel' present in buffer. Used for binding to shader attibutes
- * Group chunks: describes individually renderable subset of indices
- * Index list: array of index_count values, of the type specified by index_type. (may be 8/16/32 bits, depending on required range)
- * Buffer: buffsize bytes of data, mapped directly into VBO. Nomionally untyped, but format is (should be?) described by the attributes list.
- * EOF
- 
-Each section immedially follows the previous. Total file size should be given by: 
-
-`sizeof(header) + header.num_attr*sizeof(attr) + header.num_groups*sizeof(group) + header.index_count * sizeof(header.index_type) + header.buffsize`
-
-Undersized files are malformed, this can be checked by comparing actual filesize to result of the above formula before reading anything.
-Oversized files will load, additional data will be ignored, readers may or may not warn.
 #####Header:
 
 | Type   | Name      | desc |
@@ -39,8 +28,8 @@ Oversized files will load, additional data will be ignored, readers may or may n
 |uint32_t|magic      | Constant value: 0x0B1EC701   |
 |uint16_t|major      | Major version number: 1      |
 |uint16_t|minor      | Minor version number: 1      |
-|uint16_t|index_type | datatype of indices[1]       |
-|uint16_t|index_count| number of indices            |
+|uint32_t|index_type | datatype of indices[1]       |
+|uint32_t|index_count| number of indices            |
 |uint32_t|buffsize   | Size in bytes of data buffer |
 |char[16]|name       | Name of model (paded with \0, not necessarily null-terminated)|
 |uint32_t|num_attrs  | Number of attributes present |
@@ -75,3 +64,23 @@ And OpenGL allows `0` to imply the same thing.
 Notes:
 
 1. Currently specified as Nth index to start at, and NOT n bytes offset from base of array of indicies, as per OpenGL Api. This may change.
+
+### Version 1.1
+Whoops, accidentally used 1.1 as first ever version. I guess that's where we'll start.
+
+Just making sure geometry can be loaded and displayed properly.
+
+File layout is:
+ * Header
+ * Attribute chunks: describes layout/stride/type of each data 'channel' present in buffer. Used for binding to shader attibutes
+ * Group chunks: describes individually renderable subset of indices
+ * Index list: array of index_count values, of the type specified by index_type. (may be 8/16/32 bits, depending on required range)
+ * Buffer: buffsize bytes of data, mapped directly into VBO. Nomionally untyped, but format is (should be?) described by the attributes list.
+ * EOF
+ 
+Each section immedially follows the previous. Total file size should be given by: 
+
+`sizeof(header) + header.num_attr*sizeof(attr) + header.num_groups*sizeof(group) + header.index_count * sizeof(header.index_type) + header.buffsize`
+
+Undersized files are malformed, this can be checked by comparing actual filesize to result of the above formula before reading anything.
+Oversized files will load, additional data will be ignored, readers may or may not warn.

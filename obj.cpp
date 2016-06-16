@@ -81,7 +81,6 @@ static std::tuple<int, int, int, char*> read_group(char *str) {
 int
 ObjFile::PushVertex(int pos_idx, int tc_idx, int norm_idx)
 {
-    printf("Vertex: %d %d %d\n", pos_idx, tc_idx, norm_idx);
     assert(pos_idx != 0);
 
     if (pos_idx < 0)
@@ -91,8 +90,6 @@ ObjFile::PushVertex(int pos_idx, int tc_idx, int norm_idx)
 
     Vertex v(positions.at(pos_idx));
 
-    cout << "POS  : " << positions.at(pos_idx) << std::endl;
-
     if (tc_idx != 0) {
         if (tc_idx < 0)
             tc_idx = coords.size() + tc_idx;
@@ -100,7 +97,6 @@ ObjFile::PushVertex(int pos_idx, int tc_idx, int norm_idx)
             tc_idx -= 1;
 
         v.SetTex(coords.at(tc_idx));
-        cout << "TEX  : " << coords.at(tc_idx) << std::endl;
     }
 
     if (norm_idx != 0) {
@@ -110,10 +106,8 @@ ObjFile::PushVertex(int pos_idx, int tc_idx, int norm_idx)
             norm_idx -= 1;
 
         v.SetNormal(normals.at(norm_idx));
-        cout << "NORM : " << normals.at(norm_idx) << std::endl;
     }
-    cout << std::endl;
-    
+
     groups.back().count++;
     return vc.feed(v);
 }
@@ -224,10 +218,10 @@ do_write(std::ofstream &fp, float3 &t)
 void ObjFile::toBin(std::ofstream &fout)
 {
     const uint32_t magic = 0x0B1EC701;
-    const uint16_t major = 0x0001;
-    const uint16_t minor = 0x0001;
-    const uint16_t index_type = vc.index_type();
-    const uint16_t index_count = vc.index_count();
+    const uint16_t major = 0x0002;
+    const uint16_t minor = 0x0000;
+    const uint32_t index_type = vc.index_type();
+    const uint32_t index_count = vc.index_count();
 
 //    const int floats_per_vert = 8; // pos(x,y,z) + norm(x,y,z) + tex(s,t) = 3 + 3 + 2 = 8
     const int floats_per_vert = 6; // pos(x,y,z) + norm(x,y,z) = 3 + 3 = 6
@@ -241,12 +235,13 @@ void ObjFile::toBin(std::ofstream &fout)
     do_write<uint32_t>(fout, magic);
     do_write<uint16_t>(fout, major);
     do_write<uint16_t>(fout, minor);
-    do_write<uint16_t>(fout, index_type);
-    do_write<uint16_t>(fout, index_count);
+    do_write<uint32_t>(fout, index_type);
+    do_write<uint32_t>(fout, index_count);
     do_write<uint32_t>(fout, buffsize);
     do_write(fout, name, 16);
     do_write<uint32_t>(fout, num_attrs);
     do_write<uint32_t>(fout, num_groups);
+
 
     //const uint32_t float1_size = 1 * sizeof(float);
     const uint32_t float3_size = 3 * sizeof(float);
@@ -282,8 +277,6 @@ void ObjFile::toBin(std::ofstream &fout)
     }
 
     for (auto v: vc.vertices) {
-        cout << "POS " << v.pos << endl;
-        cout << "COl " << v.normal << endl;
         do_write(fout, v.pos);
         do_write(fout, v.normal);
         // do_write(fout, v.tc);
