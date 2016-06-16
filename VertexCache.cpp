@@ -10,25 +10,25 @@ VertexCache::feed(int i)
 int
 VertexCache::feed(Vertex &new_vertex)
 {
-    auto end = vertices.end();
-    auto begin = vertices.begin();
-
-    /* Naive search. TODO: do lookup better than O(n^2) */
-    auto it = std::find(begin, end, new_vertex);
-
-    if (it == end) {
-        // Not found: add vertex and associated index
-        int idx = vertices.size();
-        indices.push_back(idx);
+    // Using the map as an acceleration structure is MUCH faster than scanning
+    // through vertices looking for the index of the one we care about.
+    // A model with 270K indices went from ~20s to 0.4 seconds to process.
+    //
+    auto it = map.find(new_vertex);
+    int index;
+    if (it == map.end()) {
+        index = vertices.size();
         vertices.push_back(new_vertex);
-        return idx;
+        map[new_vertex] = index;
     } else {
-        // Found: just reuse that vertex again
-        int idx = it - begin;
-        indices.push_back(idx);
-        return idx;
+        index = it->second;
     }
+
+    indices.push_back(index);
+    return index;
+
 }
+
 
 void
 VertexCache::print()

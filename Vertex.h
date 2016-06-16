@@ -17,6 +17,23 @@ struct Vertex {
         has_tc = true;
     }
 
+    const bool operator<(const Vertex& other) const {
+        auto me = pos.x + pos.y*2 + pos.z*4;
+        auto him = other.pos.x + other.pos.y*2 + other.pos.z*4;
+
+        if (has_normal) {
+            me += normal.x*8 + normal.y*16 + normal.z*32;
+            him += other.normal.x*8 + other.normal.y*16 + other.normal.z*32;
+        }
+
+        if (has_tc) {
+            me += tc.s*64 + tc.t*128;
+            him += other.tc.s*64 + other.tc.t*128;
+        }
+
+        return me < him;
+    }
+
     bool operator==(const Vertex& other)
     {
         if (pos != other.pos) return false;
