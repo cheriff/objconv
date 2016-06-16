@@ -139,7 +139,7 @@ void ObjFile::AddFace(const std::string &line)
         if (pos == 0) break;
 
         // todo: trianglulate faces with more points
-        printf("TODO: BIGGER FACES\n");
+        //printf("TODO: BIGGER FACES\n");
     } while (pos != 0);
 }
 
@@ -267,14 +267,19 @@ void ObjFile::toBin(std::ofstream &fout)
         do_write<uint16_t>(fout, g.count);
     }
 
-    for (auto i: vc.indices) {
-        if (index_type==GL_UNSIGNED_INT)
+    if (index_type==GL_UNSIGNED_INT) {
+        for (auto i: vc.indices)
             do_write<uint32_t>(fout, i);
-        else if (index_type==GL_UNSIGNED_SHORT)
+    }
+    else if (index_type==GL_UNSIGNED_SHORT) {
+        for (auto i: vc.indices)
             do_write<uint16_t>(fout, i);
-        else if (index_type==GL_UNSIGNED_BYTE)
+    }
+    else if (index_type==GL_UNSIGNED_BYTE) {
+        for (auto i: vc.indices)
             do_write<uint8_t>(fout, i);
     }
+    else assert(!"Unexpected index type");
 
     for (auto v: vc.vertices) {
         do_write(fout, v.pos);
